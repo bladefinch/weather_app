@@ -1,14 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import {Bricolage_Grotesque, DM_Sans} from "next/font/google";
+import 'modern-normalize';
 import "./globals.css";
+import StoreProvider from "@/StoreProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const geistBG = Bricolage_Grotesque({
+  variable: "--font-title",
+  weight: ["700"],
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const geistDS = DM_Sans({
+  variable: "--font-main",
+  weight: ["300", "500", "600", "700"],
+  style: ["normal", "italic"],
   subsets: ["latin"],
 });
 
@@ -24,10 +29,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={`${geistBG.variable} ${geistDS.variable} antialiased`}>
+        <StoreProvider>
+          {children}
+        </StoreProvider>
       </body>
     </html>
   );

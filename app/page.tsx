@@ -1,103 +1,73 @@
-import Image from "next/image";
+'use client';
 
+import Weather from "./components/weather";
+
+import { useState } from "react";
+
+import { setTemperatureUnit, setWindSpeedUnit, setPrecipitationUnit, setImperialUnits } from "@/lib/features/weather/weatherUnitsSet.slice";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/lib/store";
+import { TemperatureUnit, WindSpeedUnit, PrecipitationUnit } from "@/lib/features/weather/weatherUnitsSet.slice";
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [activeUnits, setActiveUnits] = useState<boolean>(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const dispatch = useDispatch();
+  const units = useSelector((state: RootState) => state.weatherUnitsSet); 
+
+  const handleTemperatureUnit = (unit: TemperatureUnit) => dispatch(setTemperatureUnit(unit));
+  const handleWindSpeedUnit = (unit: WindSpeedUnit) => dispatch(setWindSpeedUnit(unit));
+  const handlePrecipitationUnit = (unit: PrecipitationUnit) => dispatch(setPrecipitationUnit(unit));
+
+  const handleImperialUnits = () => dispatch(setImperialUnits());
+
+  return (
+    <div className="px-5 bg-[hsl(243,96%,9%)]">
+      <div className="max-w-[1256px] px-[20px] max-[769px]:px-0 mx-auto pt-[49px] max-[426px]:pt-[17px] pb-[100px] max-[426px]:pb-[50px] text-center text-white">
+        <div className="flex items-center justify-between relative">
+          <img className="max-[426px]:w-[135px]" src="/svg/logo.svg" alt="Weather Now" />
+          <div onClick={() => setActiveUnits(!activeUnits)} className="flex items-center justify-between bg-[hsl(243,27%,20%)] py-3 px-4 max-[426px]:px-2 max-[426px]:py-2 rounded-[10px] max-[426px]:rounded-[6px] w-[120px] max-[426px]:w-[90px] cursor-pointer"> 
+            <img src="/svg/icon-units.svg" />
+            <p className="text-[16px] max-[426px]:text-[14px] font-[300]">Units</p>
+            <img className="max-[426px]:w-[10px]" src="/svg/icon-dropdown.svg" />
+          </div>
+          <div className={`absolute top-[52px] right-0 text-left bg-[hsl(243,27%,20%)] w-[215px] overflow-hidden px-1.5 py-1.5 rounded-[10px] 
+          border border-[hsl(243,27%,30%)] text-[16px] shadow-[0px_0px_10px_10px_rgba(0,0,0,0.25)] z-20 ${activeUnits ? "block" : "hidden"}`}>
+            <button onClick={handleImperialUnits} className="font-[300] tracking-[0.3px] p-2.5 w-[100%] text-left rounded-[10px] cursor-pointer focus:outline-1 focus:outline-[hsl(250,6%,84%)]">Switch to Imperial</button>
+            <div className="grid gap-2.5 mt-2.5">
+              <div className="gap-2">
+                <div className="text-[16px]"> 
+                  <p className="text-[14px] text-[hsl(240,6%,70%)] px-2.5 mb-2.5">Temperature</p>  
+                  <div className="grid gap-1">
+                    <button onClick={() => handleTemperatureUnit("celsius")} className={`p-2.5 text-left rounded-[10px] cursor-pointer focus:outline-1 focus:outline-[hsl(250,6%,84%)] ${units.temperatureUnit === "celsius" ? "bg-[hsl(243,27%,24%)]" : ""}`}>Celsius (°C)</button>
+                    <button onClick={() => handleTemperatureUnit("fahrenheit")} className={`p-2.5 text-left rounded-[10px] cursor-pointer focus:outline-1 focus:outline-[hsl(250,6%,84%)] ${units.temperatureUnit === "fahrenheit" ? "bg-[hsl(243,27%,24%)]" : ""}`}>Fahrenheit (°F)</button>
+                  </div>
+                </div>
+                <hr className="text-[hsl(243,27%,30%)] mt-1"/>
+              </div>  
+              <div className="gap-2">
+                <div className="text-[16px]">
+                  <p className="text-[14px] text-[hsl(240,6%,70%)] px-2.5 mb-2.5">Wind Speed</p>  
+                  <div className="grid gap-1">
+                    <button  onClick={() => handleWindSpeedUnit("km/h")} className={`p-2.5 text-left rounded-[10px] cursor-pointer focus:outline-1 focus:outline-[hsl(250,6%,84%)] ${units.windSpeedUnit === "km/h" ? "bg-[hsl(243,27%,24%)]" : ""}`}>km/h</button>
+                    <button onClick={() => handleWindSpeedUnit("mph")} className={`p-2.5 text-left rounded-[10px] cursor-pointer focus:outline-1 focus:outline-[hsl(250,6%,84%)] ${units.windSpeedUnit === "mph" ? "bg-[hsl(243,27%,24%)]" : ""}`}>mph</button>
+                  </div>
+                </div>
+                <hr className="text-[hsl(243,27%,30%)] mt-1"/>
+              </div>  
+              <div className="gap-2">
+                <div className="text-[16px]">
+                  <p className="text-[14px] text-[hsl(240,6%,70%)] px-2.5 mb-2.5">Precipitaion</p>  
+                  <div className="grid gap-1">
+                    <button onClick={() => handlePrecipitationUnit("mm")} className={`p-2.5 text-left rounded-[10px] cursor-pointer focus:outline-1 focus:outline-[hsl(250,6%,84%)] ${units.precipitationUnit === "mm" ? "bg-[hsl(243,27%,24%)]" : ""}`}>Millimeters (mm)</button>
+                    <button onClick={() => handlePrecipitationUnit("in")} className={`p-2.5 text-left rounded-[10px] cursor-pointer focus:outline-1 focus:outline-[hsl(250,6%,84%)] ${units.precipitationUnit === "in" ? "bg-[hsl(243,27%,24%)]" : ""}`}>Inches (in)</button>
+                  </div>
+                </div>
+              </div>  
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <Weather></Weather>
+      </div>
     </div>
   );
 }
