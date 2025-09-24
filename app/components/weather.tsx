@@ -4,24 +4,25 @@ import { getWeather } from "@/lib/custom-api/getWeather";
 import { getCityList } from "@/lib/open-meteo/geocoding/fetchGeocoding";
 import weatherCodeMap from "@/lib/open-meteo/weather-forecast/weatherUtils";
 
-import {use, useEffect, useRef, useState } from "react";
+import {useEffect, useRef, useState } from "react";
 
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store";
 import { setChoosenCity } from "@/lib/features/chooseCity/chooseCity.slice";
 
+import { WeekWeather } from "../types/types";
+import { DailyWeather } from "../types/types";
+import { HourlyWeather } from "../types/types";
+import { CityList } from "../types/types";
+import { City } from "../types/types";
+
 export default function Weather() {
 
-  const [weather, setWeather] = useState<any | null>(null);
+  const [weather, setWeather] = useState<WeekWeather>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const currentHour = new Date().getHours();
-
-  const [isFocused, setIsFocused] = useState(false);
-
-  const handleFocus = () => setIsFocused(true);
-  const handleBlur = () => setIsFocused(false);
 
   const [openSearch, setOpenSearch] = useState(false);
 
@@ -44,7 +45,7 @@ export default function Weather() {
     setCityInput(e.target.value);
   };
 
-  const [cityList, setCityList] = useState<any | null>(null);
+  const [cityList, setCityList] = useState<CityList>([]);
   const [cityListLoading, setCityListLoading] = useState(true);
   const [cityListError, setCityListError] = useState<string | null>(null);
 
@@ -74,7 +75,7 @@ export default function Weather() {
   const [choosenWeekday, setChoosenWeekday] = useState<{dayFull: string; date: string} | null>(null);
 
   useEffect(() => {
-    if (weather && weather[1].dayFull && weather[1].date) {
+    if (weather && weather.length > 0) {
       setChoosenWeekday({
         dayFull: weather[1].dayFull,
         date: weather[1].date
@@ -85,8 +86,8 @@ export default function Weather() {
   const [choosenWeekdayIndex, setChoosenWeekdayIndex] = useState<number>(0);
 
   useEffect(() => {
-    if (choosenWeekday) {
-      const index = weather.findIndex((day: any) => day.dayFull === choosenWeekday.dayFull && day.date === choosenWeekday.date);
+    if (choosenWeekday && weather) {
+      const index = weather.findIndex((day: DailyWeather) => day.dayFull === choosenWeekday.dayFull && day.date === choosenWeekday.date);
       setChoosenWeekdayIndex(index);
     }
   }, [choosenWeekday])
@@ -191,10 +192,10 @@ export default function Weather() {
                 <img className="animate-spin" src="/svg/icon-loading.svg" />
                 <p className="tracking-[0.015em]">Search in progress</p>
               </div>
-            ) : !cityList?.results ? (
+            ) : !cityList ? (
               <div className="text-[16px] font-[300] py-[10px] px-[8px] rounded-[8px]">No search results found!</div>
             ) : (
-              cityList?.results?.map((city: any, index: number) => index >= 10 ? null : (
+              cityList?.map((city: City, index: number) => index >= 10 ? null : (
               <button key={index} onMouseDown={() => [handleChooseCity(city.name, city.latitude, city.longitude, city.country), setOpenSearch(false)]} 
                 onKeyDown={(e) => e.key === "Enter" && [handleChooseCity(city.name, city.latitude, city.longitude, city.country), setOpenSearch(false)]} className={`font-[300] text-left py-[10px] px-[8px] rounded-[8px] ${city.latitude === choosenCity.latitude && city.longitude === choosenCity.longitude ? "bg-[hsl(243,27%,24%)] border border-[hsl(243,27%,30%)]" : ""}`} >{city.name}, {city.country}</button>))
             )}
@@ -212,7 +213,7 @@ export default function Weather() {
                 <p className="font-[300] tracking-[0.015em]">{weather[1].date}</p>
               </div>
               <div className="flex items-center">
-                <img src={weatherCodeMap(weather[1].hours[currentHour].weather_code)?.icon} alt={(weather[1].hours[currentHour].weather_code)?.label} className="w-[120px] mr-[20px]"/>
+                <img src={weatherCodeMap(weather[1].hours[currentHour].weather_code)?.icon} alt={weatherCodeMap(weather[1].hours[currentHour].weather_code)?.label} className="w-[120px] mr-[20px]"/>
                 <p className="text-[96px] italic font-[600] tracking-[-0.02em]">{weather[1].hours[0].temperature_2m}°</p>
               </div>
             </div>
@@ -252,7 +253,7 @@ export default function Weather() {
             </div>
             <p className="text-[20px] mt-[48px] max-[426px]:mt-[30px] tracking-[0.01em] text-left">Daily forecast</p>
             <div className="grid grid-cols-7 max-[769px]:grid-cols-4 max-[480px]:grid-cols-3 gap-[15px] mt-[20px]">
-              {weather.map((item: any , index: number) => index === weather.length - 1 || index === 0 ? null : (
+              {weather.map((item: DailyWeather , index: number) => index === weather.length - 1 || index === 0 ? null : (
                 <div key={index} className="min-h-[165px] bg-[hsl(243,27%,20%)] px-2.5 py-4 rounded-[10px] border border-[hsl(243,27%,30%)]">
                   <div className="relative h-[100%]">
                     <p className="font-[300] tracking-[0.025em] absolute top-0 left-0 w-[100%]">{item.day}</p>
@@ -274,13 +275,13 @@ export default function Weather() {
                 <img src="/svg/icon-dropdown.svg" />
               </button>
               <div className={`absolute grid gap-[5px] top-[70px] right-[24px] w-[215px] text-[16px] bg-[hsl(243,27%,20%)] rounded-[15px] p-2 border border-[hsl(243,27%,30%)] shadow-[0px_0px_10px_10px_rgba(0,0,0,0.25)] z-30 ${hourlyActive ? 'block' : 'hidden'}`}>
-                {weather.map((item: any , index: number) => index === 0 || index === weather.length - 1 ? null : (
+                {weather.map((item: DailyWeather , index: number) => index === 0 || index === weather.length - 1 ? null : (
                   <button onClick={() => (setChoosenWeekday({dayFull: item.dayFull, date: item.date}), setHourlyActive(false))} key={index} className={`w-[100%] rounded-[10px] py-2.5 px-2 text-left font-[300] tracking-[0.03em] ${choosenWeekday?.date === item.date ? 'bg-[hsl(243,27%,24%)]' : ''}`}>{item.dayFull}</button>
                 ))}
               </div>
             </div>
             <div className="grid gap-[16px] pr-5 pl-6 max-[426px]:pr-2 max-[426px]:pl-3 mb-5 overflow-y-auto custom-scroll">
-              {weather[choosenWeekdayIndex].hours.map((item: any , index: number) => (
+              {weather[choosenWeekdayIndex].hours.map((item: HourlyWeather , index: number) => (
                 <div key={index} className="flex items-center justify-between bg-[hsl(243,27%,24%)] border border-[hsl(243,27%,30%)] h-[60px] p-3 pr-4 rounded-[10px]">
                   <div className="flex items-center gap-[10px]">
                     <img src={weatherCodeMap(item.weather_code)?.icon} alt={weatherCodeMap(item.weather_code)?.label} className="w-[40px]"/>

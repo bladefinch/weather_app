@@ -93,8 +93,10 @@ export async function getWeatherForecast(lat: number, lon: number, units: { temp
         hours: HourlyWeather[];
     };
 
-    const weatherDataDaily:DailyWeather[] = weatherDataHourly.reduce((acc: DailyWeather[], item: any) => {
-        const { date, day, ...hourData } = item;
+    type HourlyWeatherPlus = HourlyWeather & { date: string; day: string; dayFull: string };
+
+    const weatherDataDaily:DailyWeather[] = weatherDataHourly.reduce((acc: DailyWeather[], item: HourlyWeatherPlus) => {
+        const { date, day, dayFull, ...hourData } = item;
         const existingDay = acc.find((day) => day.date === date); 
         if (existingDay) {
             existingDay.hours.push(hourData);
@@ -105,7 +107,7 @@ export async function getWeatherForecast(lat: number, lon: number, units: { temp
             acc.push({ date: item.date, day: item.day, dayFull: item.dayFull, maxtemp: hourData.temperature_2m, mintemp: hourData.temperature_2m, dayweather: hourData.weather_code, hours: [hourData] });
         }
         return acc;
-    }, []);
+    }, []); 
 
     // console.log("\nHourly data devided", weatherDataDaily[1].hours)
 
