@@ -81,8 +81,6 @@ export default function Weather() {
     
   }, [weather])
 
-  console.log(currentHour);
-
   const [hourlyActive, setHourlyActive] = useState<boolean>(false);
   const [choosenWeekday, setChoosenWeekday] = useState<{dayFull: string; date: string} | null>(null);
 
@@ -280,7 +278,7 @@ export default function Weather() {
             </div>
           </div>
           <div className="bg-[hsl(243,27%,20%)] w-[32.5%] max-[1150px]:w-[100%] h-[692px] rounded-[20px] flex flex-col gap-[16px]">
-            <div className="flex items-center justify-between p-6 max-[426px]:px-3 pb-0 relative">
+            <div className="flex items-center justify-between p-6 max-[426px]:px-4 pb-0 relative">
               <p className="text-[20px] tracking-[0.025em]">Hourly forecast</p>
               <button onClick={() => setHourlyActive(!hourlyActive)} className="flex items-center justify-between bg-[hsl(243,27%,30%)] py-2.5 px-4 gap-[12px] rounded-[10px] ">
                 <p className="text-[16px] font-[300]">{choosenWeekday?.dayFull}</p>
@@ -292,7 +290,7 @@ export default function Weather() {
                 ))}
               </div>
             </div>
-            <div className="grid gap-[16px] pr-5 pl-6 max-[426px]:pr-2 max-[426px]:pl-3 mb-5 overflow-y-auto custom-scroll">
+            <div className="grid gap-[16px] px-5 max-[426px]:px-3 mb-5 overflow-y-auto custom-scroll">
               {weather[choosenWeekdayIndex].hours.map((item: HourlyWeather , index: number) => (
                 <div key={index} className="flex items-center justify-between bg-[hsl(243,27%,24%)] border border-[hsl(243,27%,30%)] h-[60px] p-3 pr-4 rounded-[10px]">
                   <div className="flex items-center gap-[10px]">
