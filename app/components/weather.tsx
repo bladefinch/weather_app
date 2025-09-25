@@ -218,7 +218,7 @@ export default function Weather() {
           <div className="w-[67.5%] max-[1150px]:w-[100%]">
             <div className="flex items-center w-[100%] h-[285px] justify-between bg-[url(/svg/bg-today-large.svg)] bg-cover bg-center p-6 rounded-[20px] 
             max-[769px]:flex-col max-[769px]:py-[40px] max-[769px]:px-[10px]">
-              <div className="text-left">
+              <div className="text-left max-[769px]:text-center">
                 <p className="text-[28px] font-[600] mb-[12px] tracking-[0.01em]">{choosenCity.name}, {choosenCity.country}</p>
                 <p className="font-[300] tracking-[0.015em]">{weather[1].date}</p>
               </div>
