@@ -4,7 +4,7 @@ import { getWeather } from "@/lib/custom-api/getWeather";
 import { getCityList } from "@/lib/open-meteo/geocoding/fetchGeocoding";
 import weatherCodeMap from "@/lib/open-meteo/weather-forecast/weatherUtils";
 
-import {useEffect, useRef, useState } from "react";
+import {use, useEffect, useRef, useState } from "react";
 
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/lib/store";
@@ -21,8 +21,6 @@ export default function Weather() {
   const [weather, setWeather] = useState<WeekWeather>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const currentHour = new Date().getHours();
 
   const [openSearch, setOpenSearch] = useState(false);
 
@@ -71,6 +69,20 @@ export default function Weather() {
     getWeather(choosenCity.latitude, choosenCity.longitude, units.temperatureUnit, units.windSpeedUnit, units.precipitationUnit).then((data) => setWeather(data)).catch((err) => setError(err)).finally(() => setLoading(false));
   }, [choosenCity, units]);
 
+  const [currentHour, setCurrentHour] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (weather && weather.length > 0 && weather[1].timezonediff !== undefined) {
+      const now = new Date();
+      const utcTime = now.getTime() + now.getTimezoneOffset() * 60 * 1000;
+      const cityTime = new Date(utcTime + weather[1].timezonediff * 1000);
+      setCurrentHour(cityTime.getHours());
+    }
+    
+  }, [weather])
+
+  console.log(currentHour);
+
   const [hourlyActive, setHourlyActive] = useState<boolean>(false);
   const [choosenWeekday, setChoosenWeekday] = useState<{dayFull: string; date: string} | null>(null);
 
@@ -92,7 +104,7 @@ export default function Weather() {
     }
   }, [choosenWeekday])
 
-  if (loading) return(
+  if (loading || currentHour === null) return(
     <div>
       <h1 className="text-[52px] mt-[66px] max-[426px]:mt-[50px]">How&apos;s the sky looking today?</h1>
       <div className="flex max-[426px]:flex-col gap-4 max-w-[655px] justify-items-center mx-auto mt-[65px] max-[426px]:mt-[52px] relative">
@@ -214,7 +226,7 @@ export default function Weather() {
               </div>
               <div className="flex items-center">
                 <img src={weatherCodeMap(weather[1].hours[currentHour].weather_code)?.icon} alt={weatherCodeMap(weather[1].hours[currentHour].weather_code)?.label} className="w-[120px] mr-[20px]"/>
-                <p className="text-[96px] italic font-[600] tracking-[-0.02em]">{weather[1].hours[0].temperature_2m}°</p>
+                <p className="text-[96px] italic font-[600] tracking-[-0.02em]">{weather[1].hours[currentHour].temperature_2m}°</p>
               </div>
             </div>
             <div className="grid grid-cols-4 max-[769px]:grid-cols-2 gap-[25px] mt-[32px] max-[426px]:mt-[20px] max-[426px]:gap-[15px]">

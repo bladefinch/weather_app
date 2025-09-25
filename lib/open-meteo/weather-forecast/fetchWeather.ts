@@ -64,6 +64,7 @@ export async function getWeatherForecast(lat: number, lon: number, units: { temp
         hour: j.toLocaleTimeString("en-US", {
             hour: "numeric",
         }),
+        timezonediff: utcOffsetSeconds,
         temperature_2m: Math.round(weatherData.hourly.temperature_2m?.[i] ?? 0),
         wind_speed_10m: Math.round(weatherData.hourly.wind_speed_10m?.[i] ?? 0),
         relative_humidity_2m: Math.round(weatherData.hourly.relative_humidity_2m?.[i] ?? 0),
@@ -87,16 +88,17 @@ export async function getWeatherForecast(lat: number, lon: number, units: { temp
         date: string;
         day: string;
         dayFull: string;
+        timezonediff: number;
         maxtemp: number;
         mintemp: number;
         dayweather: number;
         hours: HourlyWeather[];
     };
 
-    type HourlyWeatherPlus = HourlyWeather & { date: string; day: string; dayFull: string };
+    type HourlyWeatherPlus = HourlyWeather & { date: string; day: string; dayFull: string, timezonediff: number };
 
     const weatherDataDaily:DailyWeather[] = weatherDataHourly.reduce((acc: DailyWeather[], item: HourlyWeatherPlus) => {
-        const { date, day, dayFull, ...hourData } = item;
+        const { date, day, dayFull, timezonediff, ...hourData } = item;
         const existingDay = acc.find((day) => day.date === date); 
         if (existingDay) {
             existingDay.hours.push(hourData);
@@ -104,7 +106,7 @@ export async function getWeatherForecast(lat: number, lon: number, units: { temp
             existingDay.mintemp = Math.min(existingDay.mintemp, hourData.temperature_2m);
             existingDay.dayweather = Math.max(existingDay.dayweather, hourData.weather_code);
         } else {
-            acc.push({ date: item.date, day: item.day, dayFull: item.dayFull, maxtemp: hourData.temperature_2m, mintemp: hourData.temperature_2m, dayweather: hourData.weather_code, hours: [hourData] });
+            acc.push({ date: item.date, day: item.day, dayFull: item.dayFull, timezonediff: item.timezonediff, maxtemp: hourData.temperature_2m, mintemp: hourData.temperature_2m, dayweather: hourData.weather_code, hours: [hourData] });
         }
         return acc;
     }, []); 

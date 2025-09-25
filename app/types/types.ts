@@ -12,6 +12,7 @@ export type DailyWeather = {
     date: string;
     day: string;
     dayFull: string;
+    timezonediff: number;
     maxtemp: number;
     mintemp: number;
     dayweather: number;
