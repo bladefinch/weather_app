@@ -253,7 +253,7 @@ export default function Weather() {
             </div>
             <p className="text-[20px] mt-[48px] max-[426px]:mt-[30px] tracking-[0.01em] text-left">Daily forecast</p>
             <div className="grid grid-cols-7 max-[769px]:grid-cols-4 max-[480px]:grid-cols-3 gap-[15px] mt-[20px]">
-              {weather.map((item: DailyWeather , index: number) => index === weather.length - 1 || index === 0 ? null : (
+              {weather.map((item: DailyWeather , index: number) => index === 0 ? null : (
                 <div key={index} className="min-h-[165px] bg-[hsl(243,27%,20%)] px-2.5 py-4 rounded-[10px] border border-[hsl(243,27%,30%)]">
                   <div className="relative h-[100%]">
                     <p className="font-[300] tracking-[0.025em] absolute top-0 left-0 w-[100%]">{item.day}</p>
@@ -275,7 +275,7 @@ export default function Weather() {
                 <img src="/svg/icon-dropdown.svg" />
               </button>
               <div className={`absolute grid gap-[5px] top-[70px] right-[24px] w-[215px] text-[16px] bg-[hsl(243,27%,20%)] rounded-[15px] p-2 border border-[hsl(243,27%,30%)] shadow-[0px_0px_10px_10px_rgba(0,0,0,0.25)] z-30 ${hourlyActive ? 'block' : 'hidden'}`}>
-                {weather.map((item: DailyWeather , index: number) => index === 0 || index === weather.length - 1 ? null : (
+                {weather.map((item: DailyWeather , index: number) => index === 0 ? null : (
                   <button onClick={() => (setChoosenWeekday({dayFull: item.dayFull, date: item.date}), setHourlyActive(false))} key={index} className={`w-[100%] rounded-[10px] py-2.5 px-2 text-left font-[300] tracking-[0.03em] ${choosenWeekday?.date === item.date ? 'bg-[hsl(243,27%,24%)]' : ''}`}>{item.dayFull}</button>
                 ))}
               </div>
